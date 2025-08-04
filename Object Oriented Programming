@@ -1,0 +1,83 @@
+1)   class student{
+    String name;
+    int regno;
+    String dept;
+    String sec;
+void combination()
+{
+    System.out.println(name);
+    System.out.println(regno);
+    System.out.println(dept);
+    System.out.println(sec);
+}}
+public class Main {
+    public static void main(String[] args) {
+    student obj = new student();
+    obj.name="bhava";
+    obj.regno=39;
+    obj.dept="Ai&Ds";
+    obj.sec="A";
+    obj.combination();
+    }}
+OUTPUT:-
+bhava
+39
+Ai&Ds
+A
+
+
+
+
+
+
+2) class Person {
+    private String name;
+    private int age;
+    public void setName(String name){
+        this.name=name;
+    }
+    public String getName(){
+        return name;
+    }
+    public void setAge(int age) {
+        this.age=age;
+    }
+    public int getAge(){
+        return age;
+    }
+}
+public class Main {
+    public static void main(String[]args){
+        Person person = new Person();
+        person.setName("Alice");
+        person.setAge(30);
+        System.out.println( person.getName() +"is"+person.getAge()+"years old.");
+    }
+}
+OUTPUT:-
+Aliceis30years old.
+
+
+
+
+3) class name1{
+    void set() {
+        System.out.println("This is superclass");
+    }
+}
+class name2 extends name1{
+    void get() {
+        System.out.println("This is subclass");
+    }
+}
+public class Main {
+    public static void main(String[]args){
+        name2 obj = new name2();
+        obj.set();
+        obj.get();
+    }
+}
+OUTPUT:-
+This is superclass
+This is subclass
+
