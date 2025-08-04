@@ -26,10 +26,6 @@ Ai&Ds
 A
 
 
-
-
-
-
 2) class Person {
     private String name;
     private int age;
@@ -81,3 +77,63 @@ OUTPUT:-
 This is superclass
 This is subclass
 
+4) import java.util.Scanner;
+// Class representing a Circle
+class Circle {
+    double radius;
+    // Method to set the radius
+    void setRadius(double r) {
+        radius = r;
+    }
+    // Method to calculate and return area
+    double calculateArea() {
+        return Math.PI * radius * radius;
+    }
+}
+public class Main {
+    public static void main(String[] args) {
+        Scanner input = new Scanner(System.in);
+        // Create object of Circle class
+        Circle circle = new Circle();
+        // Take user input
+        System.out.print("Enter radius of the circle: ");
+        double r = input.nextDouble();
+        // Set radius
+        circle.setRadius(r);
+ // Calculate and display area
+        double area = circle.calculateArea();
+        System.out.println("Area of the circle is: " + area);
+        input.close();
+    } }
+OUTPUT:-
+Enter radius of the circle: 5
+Area of the circle is: 78.53981633974483
+
+
+5) class A{
+    int a;
+    String name,S;
+    void set(int a){
+        this.a=a;
+        System.out.println("The value of a is"+a);
+    }
+    void set(int a, String name){
+        this.a=a;
+        this.name=name;
+        System.out.println("The value of a is"+a+"name is"+name);
+    }
+    void set(String name, String S){
+        this.name=name;
+        this.S=S;
+        System.out.println("The value of name and S is"+name+S);
+    }
+    public static void main(String[]args){
+        A obj = new A();
+        obj.set("same","vel");
+        obj.set(9,"vel");
+        obj.set(8);
+    }
+OUTPUT:-
+The value of name and S issamevel
+The value of a is9name isvel
+The value of a is8
