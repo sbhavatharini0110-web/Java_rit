@@ -1,0 +1,116 @@
+import java.util.*;
+
+class Author {
+    String name, nationality;
+    Author(String name, String nationality) {
+        this.name = name;
+        this.nationality = nationality;
+    }
+    public String toString() {
+        return name + " (" + nationality + ")";
+    }
+}
+
+class Book {
+    String title, isbn;
+    Author author;
+    boolean isAvailable = true;
+    Member borrowedBy = null;
+
+    Book(String title, String isbn, Author author) {
+        this.title = title;
+        this.isbn = isbn;
+        this.author = author;
+    }
+
+    void display() {
+        System.out.println("Title: " + title + ", Author: " + author + ", Available: " + (isAvailable ? "Yes" : "No"));
+    }
+}
+
+class Member {
+    String name;
+    int id;
+    Member(String name, int id) {
+        this.name = name;
+        this.id = id;
+    }
+    void display() {
+        System.out.println("ID: " + id + ", Name: " + name);
+    }
+}
+
+class Library {
+    List<Book> books = new ArrayList<>();
+    List<Member> members = new ArrayList<>();
+
+    void addBook(Book b) { books.add(b); }
+    void addMember(Member m) { members.add(m); }
+
+    void borrow(String isbn, int id) {
+        for (Book b : books) {
+            if (b.isbn.equals(isbn)) {
+                if (b.isAvailable) {
+                    b.isAvailable = false;
+                    b.borrowedBy = findMember(id);
+                    System.out.println(b.borrowedBy.name + " borrowed " + b.title);
+                } else System.out.println("Book already borrowed.");
+                return;
+            }
+        }
+        System.out.println("Book not found.");
+    }
+
+    void returnBook(String isbn) {
+        for (Book b : books) {
+            if (b.isbn.equals(isbn)) {
+                if (!b.isAvailable) {
+                    System.out.println(b.title + " returned by " + b.borrowedBy.name);
+                    b.isAvailable = true;
+                    b.borrowedBy = null;
+                } else System.out.println("Book was not borrowed.");
+                return;
+            }
+        }
+        System.out.println("Book not found.");
+    }
+
+    Member findMember(int id) {
+        for (Member m : members) if (m.id == id) return m;
+        return null;
+    }
+
+    void showBooks() { for (Book b : books) b.display(); }
+    void showMembers() { for (Member m : members) m.display(); }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Library lib = new Library();
+        Author a1 = new Author("J.K. Rowling", "UK");
+        Author a2 = new Author("Orwell", "UK");
+
+        lib.addBook(new Book("Harry Potter", "HP001", a1));
+        lib.addBook(new Book("1984", "OR1984", a2));
+
+        lib.addMember(new Member("Alice", 1));
+        lib.addMember(new Member("Bob", 2));
+
+        lib.borrow("HP001", 1); // Alice borrows
+        lib.borrow("HP001", 2); // Already taken
+        lib.returnBook("HP001"); // Returned
+        lib.borrow("HP001", 2); // Bob borrows
+
+        lib.showBooks();
+        lib.showMembers();
+    }
+}
+OUTPUT:-
+Alice borrowed Harry Potter
+Book already borrowed.
+Harry Potter returned by Alice
+Bob borrowed Harry Potter
+Title: Harry Potter, Author: J.K. Rowling (UK), Available: No
+Title: 1984, Author: Orwell (UK), Available: Yes
+ID: 1, Name: Alice
+ID: 2, Name: Bob
