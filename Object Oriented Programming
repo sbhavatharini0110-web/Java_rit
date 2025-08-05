@@ -184,5 +184,58 @@ OUTPUT:-
 This is constructor
 The values of w,h,d are5.010.015.0
 
+8) class Box {
+    double width, height, depth;
+
+    // Default constructor
+    Box() {
+        width = 1;
+        height = 1;
+        depth = 1;
+        System.out.println("Default constructor called");
+    }
+
+    // Parameterized constructor with 3 values
+    Box(double w, double h, double d) {
+        width = w;
+        height = h;
+        depth = d;
+        System.out.println("Parameterized constructor called");
+    }
+
+    // Constructor with one value (cube)
+    Box(double side) {
+        width = height = depth = side;
+        System.out.println("Cube constructor called");
+    }
+
+    void displayVolume() {
+        double volume = width * height * depth;
+        System.out.println("Volume: " + volume);
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Box box1 = new Box();               // calls default constructor
+        box1.displayVolume();
+
+        Box box2 = new Box(10, 5, 2);       // calls 3-parameter constructor
+        box2.displayVolume();
+
+        Box box3 = new Box(4);              // calls cube constructor
+        box3.displayVolume();
+    }
+}
+
+OUTPUT:-
+Default constructor called
+Volume: 1.0
+Parameterized constructor called
+Volume: 100.0
+Cube constructor called
+Volume: 64.0
+
+
 
 
