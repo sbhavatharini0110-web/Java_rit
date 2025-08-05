@@ -137,3 +137,52 @@ OUTPUT:-
 The value of name and S issamevel
 The value of a is9name isvel
 The value of a is8
+
+6) class Box
+{
+    double w,h,d;
+    Box()
+    {
+        System.out.println("This is constructor");
+        w=10;
+        h=10;
+        d=10;
+        System.out.println("the values of w,h,d are"+w+h+d);
+    }
+}
+public class Main {
+public static void main(String[]args) {
+    Box Mybox = new Box();
+}
+}
+
+OUTPUT:-
+This is constructor
+the values of w,h,d are10.010.010.0
+
+7) class Box
+{
+    double w,h,d;
+Box(int a,int b, int c)
+{
+    System.out.println("This constructor");
+    w=a;
+    h=b;
+    d=c;
+    System.out.println("The values of w,h,d are"+w+h+d);
+}
+}
+public class Main {
+    public static void main(String[] args)
+    {
+        Box mybox = new Box(5,10,15);
+    }
+    
+}
+
+OUTPUT:-
+This is constructor
+The values of w,h,d are5.010.015.0
+
+
+
