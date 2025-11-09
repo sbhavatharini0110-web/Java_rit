@@ -1,0 +1,356 @@
+package module1.cores;
+
+abstract class Notification {
+    protected String message;
+    protected User recipient;
+
+    public Notification(String message, User recipient) {
+        this.message = message;
+        this.recipient = recipient;
+    }
+
+    public abstract void sendNotification();
+}
+
+class MessageNotification extends Notification {
+    public MessageNotification(String message, User recipient) {
+        super(message, recipient);
+    }
+
+    @Override
+    public void sendNotification() {
+        System.out.println("Message to " + recipient.getName() + ": " + message);
+    }
+}
+
+class FriendRequestNotification extends Notification {
+    public FriendRequestNotification(String message, User recipient) {
+        super(message, recipient);
+    }
+
+    @Override
+    public void sendNotification() {
+        System.out.println("Friend Request to " + recipient.getName() + ": " + message);
+    }
+}
+
+class User {
+    private String name;
+    private static int userCount = 0;
+
+    public User(String name) {
+        this.name = name;
+        userCount++;
+    }
+
+    public String getName() { return name; }
+    public static int getUserCount() { return userCount; }
+}
+
+public class Module1_OOP {
+    public static void main(String[] args) {
+        User alice = new User("Alice");
+
+        Notification n1 = new MessageNotification("Hello Alice!", alice);
+        n1.sendNotification();
+
+        Notification n2 = new FriendRequestNotification("John sent you a friend request", alice);
+        n2.sendNotification();
+
+        System.out.println("Total users: " + User.getUserCount());
+    }
+}
+package module2.exceptions;
+import java.io.*;
+
+// Custom exception class
+class InvalidUserException extends Exception {
+    public InvalidUserException(String msg) {
+        super(msg);
+    }
+}
+
+// Logger class to write notification info to a file
+class NotificationLogger {
+    public static void log(String message) {
+        // try-with-resources ensures the FileWriter is closed automatically
+        try (FileWriter fw = new FileWriter("notifications.log", true)) {
+            fw.write(message + "\n");
+            System.out.println("Logged: " + message);
+        } catch (IOException e) {
+            // Handle error if logging fails
+            System.out.println("Error logging notification: " + e.getMessage());
+        }
+    }
+}
+
+// Main class (matches file name)
+public class Module2_Exceptions {
+    public static void main(String[] args) {
+        String user = null; // Simulate missing user
+
+        try {
+            // Check for the error condition
+            if (user == null)
+                throw new InvalidUserException("User not found!"); // Throw the custom exception
+
+            // This line is skipped because the exception is thrown
+            System.out.println("Notification sent to " + user);
+
+        } catch (InvalidUserException e) {
+            // Catch the specific exception
+            System.out.println("Exception: " + e.getMessage());
+            // Log the error to a file
+            NotificationLogger.log("Error: " + e.getMessage());
+        }
+    }
+}
+package module3.generics;
+import java.util.*;
+
+class NotificationManager<T> {
+    private List<T> notifications = Collections.synchronizedList(new ArrayList<>());
+
+    public void add(T item) { notifications.add(item); }
+    public void showAll() { notifications.forEach(System.out::println); }
+}
+
+class NotificationTask extends Thread {
+    private String message;
+    public NotificationTask(String message) { this.message = message; }
+
+    @Override
+    public void run() {
+        System.out.println(Thread.currentThread().getName() + " sending: " + message);
+        try { Thread.sleep(500); } catch (InterruptedException e) {}
+    }
+}
+
+public class Module3_GenericsThreads {
+    public static void main(String[] args) {
+        NotificationManager<String> manager = new NotificationManager<>();
+        manager.add("Like Notification");
+        manager.add("Comment Notification");
+
+        NotificationTask t1 = new NotificationTask("New Message!");
+        NotificationTask t2 = new NotificationTask("Friend Request!");
+
+        t1.start();
+        t2.start();
+
+        manager.showAll();
+    }
+}
+package module4.networking;
+
+import java.io.*;
+import java.net.*;
+import java.sql.*;
+
+/**
+ * Module 4: Java Networking + JDBC
+ * Demonstrates:
+ *  - Socket programming (Server + Client)
+ *  - Multi-threading
+ *  - JDBC connectivity to MySQL database
+ *
+ * Requirements:
+ *  1. MySQL running locally (default port 3306)
+ *  2. Database: testdb
+ *  3. Table: notifications (id, message, created_at)
+ *  4. MySQL Connector/J JAR added to Eclipse Build Path
+ */
+public class Module4_NetworkJDBC {
+
+    // Networking port (not conflicting with MySQL)
+    private static final int PORT = 5000;
+
+    // Database credentials
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/testdb";
+    private static final String DB_USER = "root";
+    private static final String DB_PASS = "Quality@01";
+
+    public static void main(String[] args) {
+        System.out.println("🚀 Starting Social Media Notification (Networking + JDBC) Module...\n");
+
+        // Start Server and Client as separate threads
+        new Thread(Module4_NetworkJDBC::startServer, "Server-Thread").start();
+        new Thread(Module4_NetworkJDBC::startClient, "Client-Thread").start();
+
+        // Run JDBC fetch after networking
+        try {
+            Thread.sleep(3000); // Wait for server/client to finish
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        // Show notifications stored in DB
+        displayNotificationsFromDB();
+
+        System.out.println("\n✅ Module 4 execution completed successfully!");
+    }
+
+    // 1️⃣ Server: Receives message from client and inserts into DB
+    public static void startServer() {
+        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+            System.out.println("[SERVER] Started on port " + PORT + ". Waiting for client...");
+
+            Socket socket = serverSocket.accept();
+            System.out.println("[SERVER] Client connected from " + socket.getInetAddress());
+
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+                String message = in.readLine();
+                System.out.println("[SERVER] Received message: " + message);
+                insertNotificationToDB(message);
+            }
+
+        } catch (IOException e) {
+            System.err.println("[SERVER] Error: " + e.getMessage());
+        }
+    }
+
+    // 2️⃣ Client: Sends a notification message to the server
+    public static void startClient() {
+        try {
+            Thread.sleep(1000); // wait for server to start
+            System.out.println("[CLIENT] Connecting to server on localhost:" + PORT + "...");
+
+            try (Socket socket = new Socket("localhost", PORT);
+                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
+
+                String message = "Divya liked your story! (New Notification)";
+                out.println(message);
+                System.out.println("[CLIENT] Sent message: " + message);
+            }
+
+        } catch (IOException | InterruptedException e) {
+            System.err.println("[CLIENT] Error: " + e.getMessage());
+        }
+    }
+
+    // 3️⃣ Insert received notification into MySQL
+    private static void insertNotificationToDB(String message) {
+        String query = "INSERT INTO notifications (message) VALUES (?)";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            pstmt.setString(1, message);
+            pstmt.executeUpdate();
+            System.out.println("[DB] ✅ Notification saved to database.");
+
+        } catch (SQLException e) {
+            System.err.println("[DB] ❌ Failed to insert: " + e.getMessage());
+        }
+    }
+
+    // 4️⃣ Display all notifications from the database
+    private static void displayNotificationsFromDB() {
+        String query = "SELECT * FROM notifications ORDER BY created_at DESC";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+
+            System.out.println("\n🗂️ Notifications stored in Database:");
+            System.out.println("-----------------------------------------------------------");
+            while (rs.next()) {
+                System.out.println(
+                    rs.getInt("id") + ". " +
+                    rs.getString("message") + "   [" +
+                    rs.getTimestamp("created_at") + "]"
+                );
+            }
+            System.out.println("-----------------------------------------------------------");
+
+        } catch (SQLException e) {
+            System.err.println("[DB] ❌ Error fetching data: " + e.getMessage());
+        }
+    }
+}
+package module5.gui;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+
+// Demonstrates Swing GUI + MVC concept for Social Media Notification System
+public class Module5_GUI {
+
+    public static void main(String[] args) {
+        // Run GUI in the Event Dispatch Thread for thread safety
+        SwingUtilities.invokeLater(() -> new NotificationView().createAndShowGUI());
+    }
+}
+
+// ----- Model -----
+class NotificationModel {
+    private String latestNotification = "";
+
+    public void setNotification(String message) {
+        latestNotification = message;
+    }
+
+    public String getNotification() {
+        return latestNotification;
+    }
+}
+
+// ----- View + Controller -----
+class NotificationView {
+    private final NotificationModel model = new NotificationModel();
+
+    private JFrame frame;
+    private JTextArea notificationArea;
+    private JTextField inputField;
+    private JButton sendButton;
+
+    public void createAndShowGUI() {
+        frame = new JFrame("Social Media Notification System");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(500, 350);
+        frame.setLayout(new BorderLayout(10, 10));
+
+        // Title
+        JLabel title = new JLabel("📱 Social Media Notification System", JLabel.CENTER);
+        title.setFont(new Font("SansSerif", Font.BOLD, 18));
+        frame.add(title, BorderLayout.NORTH);
+
+        // Notification Display Area
+        notificationArea = new JTextArea();
+        notificationArea.setEditable(false);
+        notificationArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        frame.add(new JScrollPane(notificationArea), BorderLayout.CENTER);
+
+        // Input area at bottom
+        JPanel bottomPanel = new JPanel(new BorderLayout(5, 5));
+        inputField = new JTextField();
+        inputField.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        sendButton = new JButton("Send Notification");
+        sendButton.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+        // Action Listener (Controller)
+        sendButton.addActionListener(e -> sendNotification());
+
+        bottomPanel.add(inputField, BorderLayout.CENTER);
+        bottomPanel.add(sendButton, BorderLayout.EAST);
+        frame.add(bottomPanel, BorderLayout.SOUTH);
+
+        // Center the window
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+    }
+
+    private void sendNotification() {
+        String message = inputField.getText().trim();
+        if (message.isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "Please enter a notification message!");
+            return;
+        }
+
+        // Update model and display in view
+        model.setNotification(message);
+        notificationArea.append("📢 New Notification: " + model.getNotification() + "\n");
+        inputField.setText("");
+    }
+}
